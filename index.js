@@ -111,7 +111,8 @@ require('dotenv').config()
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000; 
-
+console.log(process.env.DB_NAME)
+console.log(process.env.DB_PASS)
 app.use(cors())
 app.use(express.json())
 
@@ -156,6 +157,12 @@ app.get('/all-book', async(req,res)=>{
   res.send(result)
 })
 
+app.get('/book/:id', async(req,res)=>{
+  const id = req.params.id;
+  const filter = {_id: new ObjectId(id)}
+  const data = await bookCollection.findOne(filter)
+  res.send(data)
+})
 
 
 app.patch('/book/:id', async(req,res)=>{
@@ -173,11 +180,15 @@ const updatedBookData = req.body;
 })
 
 app.delete('/book/:id', async(req,res)=>{
+ try{
   const id = req.params.id;
   const filter = {_id: new ObjectId(id)}
 
   const result = await bookCollection.deleteOne(filter)
   res.send(result)
+ }catch(error){
+  res.send(error.message)
+ }
 })
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
